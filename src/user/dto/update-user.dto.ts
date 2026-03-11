@@ -4,11 +4,15 @@ import { Gender } from '../entities/user.entity';
 export class UpdateUserDto {
   @IsOptional()
   @IsString()
-  name?: string;
+  firstName?: string;
 
   @IsOptional()
   @IsString()
-  phoneNumber?: string;
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
 
   @IsOptional()
   @IsString()

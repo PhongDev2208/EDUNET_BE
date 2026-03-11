@@ -117,10 +117,12 @@ Clients use these query params (handled by custom decorators):
 
 ## Database & Migrations
 
+- **DBCODE:** Use DBCODE extension to connect to the `Edunet` database (`edunet_db`, PostgreSQL on `localhost:5433`). Always verify schema via DBCODE before creating migrations.
 - **Config:** `src/core/database/main.ts` (shared), `data-source.ts` (migrations), `seed-data-source.ts` (seeds)
-- **Migrations:** `src/migrations/` — run via `npm run migration:migrate`, revert via `npm run migration:revert`
-- **Seeds:** `src/seeds/` — run via `npm run seed:migrate` (uses separate data source)
+- **Migrations:** `src/migrations/` — run via `npm run migration:migrate`, revert via `npm run migration:revert`. Both schema changes AND seed data live here (seed file: `1704000000000-SeedCourseData.ts`).
+- **Seeds (legacy):** `src/seeds/` still exists for backward compat with `npm run seed:migrate`, but prefer placing new seed migrations in `src/migrations/`.
 - **Generate migration:** `npm run migration:generate:name` (runs `scripts/migration-gen.ts`)
+- **Current migrations:** `InitialSchema` → `SyncEntitiesWithSchema` → `AddLastLoginToUsers` → `SeedCourseData` (all applied)
 - `synchronize: false` — always use migrations, never auto-sync
 
 ## Auth Flow

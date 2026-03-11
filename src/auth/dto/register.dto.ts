@@ -4,7 +4,11 @@ import { UserRole } from 'src/user/entities/user.entity';
 export class RegisterDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
 
   @IsNotEmpty()
   @IsEmail()
@@ -17,7 +21,7 @@ export class RegisterDto {
 
   @IsOptional()
   @IsString()
-  phoneNumber?: string;
+  phone?: string;
 
   @IsOptional()
   @IsEnum(UserRole)

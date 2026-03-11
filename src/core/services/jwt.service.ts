@@ -12,7 +12,8 @@ export class JwtService {
     const payload = {
       email: user.email.trim().toLowerCase(),
       id: user.id,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       role: user.role,
     };
     const token = jwt.sign(

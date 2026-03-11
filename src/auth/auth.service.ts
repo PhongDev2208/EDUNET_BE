@@ -54,7 +54,7 @@ export class AuthService {
     const newSession = this.sessionRepository.create({
       user,
       refreshToken,
-      expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
     });
     await this.sessionRepository.save(newSession);
 
@@ -103,7 +103,7 @@ export class AuthService {
     const newSession = this.sessionRepository.create({
       user: createdUser,
       refreshToken,
-      expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
     });
     await this.sessionRepository.save(newSession);
 
@@ -134,8 +134,8 @@ export class AuthService {
     const session = await this.sessionRepository.findOne({
       where: {
         refreshToken,
-        revoked: false,
-        expiredAt: MoreThan(new Date()),
+        isRevoked: false,
+        expiresAt: MoreThan(new Date()),
       },
       relations: ['user'],
     });
@@ -161,7 +161,7 @@ export class AuthService {
       return new ErrorResponse('Invalid refresh token', HttpStatus.BAD_REQUEST);
     }
 
-    session.revoked = true;
+    session.isRevoked = true;
     await this.sessionRepository.save(session);
 
     return new SuccessResponse({ message: 'Logged out successfully' });
@@ -180,11 +180,11 @@ export class AuthService {
       return new SuccessResponse({ message: 'If email exists, a reset link will be sent' });
     }
 
-    const token = generatePasswordResetToken(32);
+    const resetToken = generatePasswordResetToken(32);
     const passwordResetToken = this.passwordResetTokenRepository.create({
       user,
-      passwordResetToken: token,
-      expiredAt: new Date(Date.now() + 1000 * 60 * 60), // 1 hour
+      token: resetToken,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60), // 1 hour
     });
 
     await this.passwordResetTokenRepository.save(passwordResetToken);
@@ -201,9 +201,9 @@ export class AuthService {
   async resetPassword(token: string, newPassword: string): Promise<CommonResponse> {
     const passwordResetToken = await this.passwordResetTokenRepository.findOne({
       where: {
-        passwordResetToken: token,
-        revoked: false,
-        expiredAt: MoreThan(new Date()),
+        token,
+        isUsed: false,
+        expiresAt: MoreThan(new Date()),
       },
       relations: ['user'],
     });
@@ -216,7 +216,7 @@ export class AuthService {
     passwordResetToken.user.password = hashedPassword;
     await this.userRepository.save(passwordResetToken.user);
 
-    passwordResetToken.revoked = true;
+    passwordResetToken.isUsed = true;
     await this.passwordResetTokenRepository.save(passwordResetToken);
 
     return new SuccessResponse({ message: 'Password reset successfully' });

@@ -26,17 +26,20 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  name: string;
-
   @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
   @Column({ type: 'varchar', length: 255 })
   password: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  firstName: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  lastName: string;
+
   @Column({ type: 'varchar', length: 20, nullable: true })
-  phoneNumber: string;
+  phone: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.STUDENT })
   role: UserRole;
@@ -62,6 +65,9 @@ export class User {
   @Column({ type: 'varchar', length: 100, nullable: true })
   country: string;
 
+  @Column({ type: 'jsonb', nullable: true })
+  socialLinks: Record<string, string>;
+
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
@@ -82,9 +88,10 @@ export class User {
 }
 
 export const userCriteriaFields = [
-  'name',
+  'firstName',
+  'lastName',
   'email',
-  'phoneNumber',
+  'phone',
   'role',
   'isActive',
   'city',

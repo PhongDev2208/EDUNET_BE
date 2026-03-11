@@ -16,17 +16,19 @@ import * as bcrypt from 'bcrypt';
     const adminPassword = await bcrypt.hash('admin123', 10);
     const userPassword = await bcrypt.hash('user123', 10);
 
-    // Insert admin user (without roleId since the roles don't match our education domain)
+    // Insert admin user
     await client.query(
-      `INSERT INTO "Users" (id, "name", email, password, "phoneNumber", "isActive", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      `INSERT INTO "Users" (id, "firstName", "lastName", email, password, phone, role, "isActive", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
        ON CONFLICT (email) DO NOTHING`,
       [
         '550e8400-e29b-41d4-a716-446655440000',
-        'Admin User',
+        'Admin',
+        'User',
         'admin@edunet.com',
         adminPassword,
         '0901234567',
+        'admin',
         true,
       ]
     );
@@ -34,15 +36,17 @@ import * as bcrypt from 'bcrypt';
 
     // Insert student user
     await client.query(
-      `INSERT INTO "Users" (id, "name", email, password, "phoneNumber", "isActive", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      `INSERT INTO "Users" (id, "firstName", "lastName", email, password, phone, role, "isActive", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
        ON CONFLICT (email) DO NOTHING`,
       [
         '550e8400-e29b-41d4-a716-446655440001',
-        'John Student',
+        'John',
+        'Student',
         'student@edunet.com',
         userPassword,
         '0902345678',
+        'student',
         true,
       ]
     );
@@ -50,15 +54,17 @@ import * as bcrypt from 'bcrypt';
 
     // Insert teacher user
     await client.query(
-      `INSERT INTO "Users" (id, "name", email, password, "phoneNumber", "isActive", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      `INSERT INTO "Users" (id, "firstName", "lastName", email, password, phone, role, "isActive", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
        ON CONFLICT (email) DO NOTHING`,
       [
         '550e8400-e29b-41d4-a716-446655440002',
-        'Jane Teacher',
+        'Jane',
+        'Teacher',
         'teacher@edunet.com',
         userPassword,
         '0903456789',
+        'teacher',
         true,
       ]
     );

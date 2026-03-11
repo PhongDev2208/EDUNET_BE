@@ -2,7 +2,6 @@ import { User } from '../../user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -10,16 +9,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'PasswordResetTokens' })
+@Entity({ name: 'PasswordResets' })
 export class PasswordResetToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({ type: 'timestamp with time zone', nullable: false })
-  expiredAt: Date;
-
-  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
-  passwordResetToken: string;
 
   @Column({ type: 'uuid', name: 'userId' })
   userId: string;
@@ -28,15 +21,18 @@ export class PasswordResetToken {
   @JoinColumn({ name: 'userId' })
   user: User;
 
+  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
+  token: string;
+
+  @Column({ type: 'timestamp with time zone', nullable: false })
+  expiresAt: Date;
+
   @Column({ type: 'boolean', default: false })
-  revoked: boolean;
+  isUsed: boolean;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamp with time zone', nullable: true })
-  deletedAt: Date | null;
 }

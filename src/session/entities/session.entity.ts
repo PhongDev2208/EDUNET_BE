@@ -16,7 +16,7 @@ export class Session {
   id: string;
 
   @Column({ type: 'timestamp with time zone', nullable: false })
-  expiredAt: Date;
+  expiresAt: Date;
 
   @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   refreshToken: string;
@@ -29,16 +29,13 @@ export class Session {
   user: User;
 
   @Column({ type: 'boolean', default: false })
-  revoked: boolean;
+  isRevoked: boolean;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  deviceId: string;
+  @Column({ type: 'text', nullable: true })
+  userAgent: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  deviceName: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  platform: string;
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  ipAddress: string;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
