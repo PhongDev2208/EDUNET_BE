@@ -39,7 +39,7 @@ async function bootstrap() {
   // Serve uploaded files (CV PDFs etc.) as static assets
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
 
-  app.setGlobalPrefix('api', {
+  app.setGlobalPrefix('gateway/edunet/api', {
     exclude: ['docs', 'docs-json', 'docs-yaml'],
   });
 
@@ -48,7 +48,7 @@ async function bootstrap() {
     .setTitle('EduNet API')
     .setDescription('EduNet Learning Platform Backend API')
     .setVersion('1.0')
-    .addServer('/') 
+    .addServer('/')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',
