@@ -15,25 +15,19 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
-  const allowedOrigins = (process.env.CORS_ORIGINS || process.env.FE_URL || 'http://localhost:5173')
+
+  // CORS configuration with multiple origins support
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://edunetfe.vercel.app')
     .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+    .map(origin => origin.trim());
 
   app.enableCors({
-    origin: (origin, callback) => {
-      // Allow non-browser clients (Postman, server-to-server) that do not send Origin.
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error(`Origin ${origin} is not allowed by CORS`), false);
-    },
+    origin: allowedOrigins,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Content-Length', 'Content-Range'],
+    maxAge: 3600,
   });
 
   // Serve uploaded files (CV PDFs etc.) as static assets
