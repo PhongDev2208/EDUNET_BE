@@ -15,14 +15,47 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
+  const port = Number(process.env.PORT) || 3000;
+  const host = process.env.HOST || '127.0.0.1';
+  const printableHost =
+    host === '127.0.0.1' || host === '::1' || host === '0.0.0.0' || host === '::'
+      ? 'localhost'
+      : host;
 
-  // CORS configuration with multiple origins support
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://edunetfe.vercel.app')
+  const normalizeOrigin = (value: string) => {
+    const normalized = value.trim().replace(/\/$/, '');
+
+    try {
+      return new URL(normalized).origin;
+    } catch {
+      return normalized;
+    }
+  };
+  const allowedOrigins = (process.env.CORS_ORIGINS || process.env.FE_URL || 'http://localhost:5173')
     .split(',')
-    .map(origin => origin.trim());
+    .map((origin) => normalizeOrigin(origin))
+    .filter(Boolean);
+  const appOrigin = `http://${printableHost}:${port}`;
+  const allowedOriginsSet = new Set<string>([
+    ...allowedOrigins,
+    appOrigin,
+    `http://localhost:${port}`,
+    `http://127.0.0.1:${port}`,
+  ]);
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow non-browser clients (Postman, server-to-server) that do not send Origin.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOriginsSet.has(normalizeOrigin(origin))) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`Origin ${origin} is not allowed by CORS`), false);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -38,11 +71,15 @@ async function bootstrap() {
   });
 
   // Swagger configuration
+  const swaggerServerUrl = (process.env.SWAGGER_SERVER_URL || '/').trim();
+  const normalizedSwaggerServer =
+    swaggerServerUrl === '/' ? '/' : swaggerServerUrl.replace(/\/$/, '');
+
   const config = new DocumentBuilder()
     .setTitle('EduNet API')
     .setDescription('EduNet Learning Platform Backend API')
     .setVersion('1.0')
-    .addServer('/gateway/edunet')
+    .addServer(normalizedSwaggerServer)
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',
@@ -55,15 +92,8 @@ async function bootstrap() {
     },
   });
 
-  const port = Number(process.env.PORT) || 3000;
-  const host = process.env.HOST || '127.0.0.1';
-
   await app.listen(port, host);
 
-  const printableHost =
-    host === '127.0.0.1' || host === '::1' || host === '0.0.0.0' || host === '::'
-      ? 'localhost'
-      : host;
   const baseUrl = `http://${printableHost}:${port}`;
 
   console.log(`Application is running on: ${baseUrl}`);
